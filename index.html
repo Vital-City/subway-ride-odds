@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Subway ride odds</title>
+<title>Subway ride risk</title>
 <link rel="stylesheet" href="https://use.typekit.net/qqk2vto.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;700;900&family=Source+Serif+4:opsz,wght@8..60,300&display=swap">
@@ -32,13 +32,6 @@ body{font-family:var(--vc-sans); font-weight:300; line-height:1.5; background:va
 .head{padding:22px 24px 20px; border-bottom:1px solid var(--vc-cloud)}
 .head h1{font-family:var(--vc-sans); font-weight:900; font-size:1.7rem; line-height:1.15; letter-spacing:-.005em; margin:0 0 8px; text-wrap:balance}
 .head .dek{font-weight:300; font-size:.92rem; line-height:1.5; max-width:62ch; margin:0; color:var(--vc-charcoal)}
-
-/* stats strip */
-.stats{display:grid; grid-template-columns:repeat(4,1fr); background:var(--vc-paper); border-bottom:1px solid var(--vc-cloud)}
-.stat{padding:14px 16px 12px; border-right:1px solid var(--vc-cloud); min-width:0}
-.stat:last-child{border-right:none}
-.stat .num{font-family:var(--vc-serif); font-weight:300; font-size:1.7rem; line-height:1; margin-bottom:4px; font-variant-numeric:tabular-nums; white-space:nowrap}
-.stat .lbl{font-weight:700; font-size:.6rem; letter-spacing:.12em; text-transform:uppercase; color:var(--vc-charcoal)}
 
 /* toolbar */
 .toolbar{display:grid; gap:14px; padding:16px 24px 18px; background:var(--vc-paper); border-bottom:1px solid var(--vc-cloud)}
@@ -91,15 +84,11 @@ input[type=range]:focus-visible{outline:2px solid var(--vc-orange); outline-offs
 .vc-table .label .caveat{display:block; font-weight:300; color:var(--vc-charcoal); font-size:.74rem; margin-top:3px}
 .pace-lbl{display:block; font-family:var(--vc-sans); font-weight:300; font-size:.7rem; color:var(--vc-charcoal); margin-bottom:2px}
 .pace-num{display:block; font-family:var(--vc-serif); font-weight:300; font-size:1.15rem; line-height:1.15; white-space:nowrap; font-variant-numeric:tabular-nums}
-.vc-table .pace-inline{display:none}
+.vc-table .m-lbl{display:none}
 .vc-table tr.group td{font-weight:700; font-size:.6rem; letter-spacing:.12em; text-transform:uppercase; color:var(--vc-orange); padding-top:.9rem; padding-bottom:.35rem}
-.vc-tag{display:inline-block; border:1px solid var(--vc-black); background:var(--vc-orange); padding:1px 5px; margin-left:.4rem;
-  font-family:var(--vc-sans); font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--vc-black); white-space:nowrap; vertical-align:1px}
 .muted{color:var(--vc-charcoal)}
 
-/* assumption + source band */
-.assume{margin:16px 24px 0; padding:2px 0 2px 14px; border-left:1.5px solid var(--vc-orange); display:grid; gap:2px}
-.assume p{margin:0; font-size:.84rem; line-height:1.5}
+/* source band */
 .source{margin-top:16px; padding:12px 24px 14px; font-size:.72rem; color:var(--vc-charcoal); border-top:1px solid var(--vc-cloud); display:grid; gap:6px}
 .source p{margin:0}
 .source b{color:var(--vc-black); font-weight:700}
@@ -107,23 +96,34 @@ input[type=range]:focus-visible{outline:2px solid var(--vc-orange); outline-offs
 .source a{color:var(--vc-charcoal)}
 
 @media (max-width:600px){
+  body{padding-block:12px}
   .head{padding:18px 16px 16px}
   .head h1{font-size:1.4rem}
-  .stats{grid-template-columns:repeat(2,1fr)}
-  .stat:nth-child(2){border-right:none}
-  .stat:nth-child(-n+2){border-bottom:1px solid var(--vc-cloud)}
-  .toolbar{padding:14px 16px 16px}
+  .head .dek{font-size:.88rem}
+  .toolbar{padding:14px 16px 16px; gap:16px}
+  .slider-head .val{font-size:.9rem}
+  input[type=range]{height:36px}
+  input[type=range]::-webkit-slider-thumb{width:24px; height:24px; margin-top:-10.5px}
+  input[type=range]::-moz-range-thumb{width:24px; height:24px}
   .presets{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .presets button{min-height:56px}
+  .horizon{display:grid; gap:6px}
+  .btn-group{display:grid; grid-template-columns:repeat(3,1fr)}
   .btn-group button{min-height:40px}
-  .figure{padding:4px 16px 0}
-  .assume{margin:16px 16px 0}
+  .figure{padding:0 16px}
   .source{padding:12px 16px 14px}
-  .vc-table th, .vc-table td{padding:.5rem .45rem; font-size:.78rem}
-  .vc-table .metric{font-size:1.05rem}
-  .vc-table .col-pace{display:none}
-  .vc-table .w-crime{width:55%} .vc-table .w-odds{width:45%}
-  .vc-table .pace-inline{display:block; margin-top:6px}
-  .vc-table .pace-inline .pace-num{font-size:1rem}
+
+  /* table becomes stacked rows: crime on top, risk and pace side by side */
+  .vc-table, .vc-table tbody{display:block; width:100%}
+  .vc-table colgroup, .vc-table thead{display:none}
+  .vc-table tbody tr{display:grid; grid-template-columns:1fr 1fr; column-gap:12px; padding:12px 0; border-bottom:1px solid var(--vc-cloud)}
+  .vc-table tbody tr:last-child{border-bottom:0}
+  .vc-table td{display:block; padding:0; border:0; font-size:.86rem}
+  .vc-table td.label{grid-column:1 / -1; margin-bottom:8px; font-size:.95rem}
+  .vc-table tr.group{display:block; padding:16px 0 4px; border-bottom:1px solid var(--vc-black)}
+  .vc-table tr.group td{padding:0}
+  .vc-table .m-lbl{display:block; font-family:var(--vc-sans); font-weight:300; font-size:.7rem; color:var(--vc-charcoal); margin-bottom:2px; white-space:normal}
+  .vc-table .metric, .pace-num{font-size:1.2rem}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 body.embed{padding:0}
@@ -134,8 +134,8 @@ body.embed .card{border:none; max-width:none}
 
 <article class="card" aria-labelledby="ttl">
   <header class="head">
-    <h1 id="ttl">What are your odds of being a crime victim on the subway?</h1>
-    <p class="dek">Each ride carries a very small chance of crime. Pick how often you ride to see what those odds add up to over a year or longer.</p>
+    <h1 id="ttl">What is your risk of being a crime victim on the subway?</h1>
+    <p class="dek">Each ride carries a very small chance of crime. Pick how often you ride to see how that risk adds up over a year or longer.</p>
   </header>
 
   <section class="toolbar" aria-label="Your ridership">
@@ -156,7 +156,7 @@ body.embed .card{border:none; max-width:none}
       <button data-rides="500" aria-pressed="false">Five-day commuter<small>Round trip, 50 weeks</small></button>
     </div>
     <div class="horizon">
-      <span class="toolbar-label">Odds over</span>
+      <span class="toolbar-label">Risk over</span>
       <div class="btn-group" role="group" aria-label="Time frame">
         <button data-years="1" aria-pressed="true">1 year</button>
         <button data-years="10" aria-pressed="false">10 years</button>
@@ -165,17 +165,17 @@ body.embed .card{border:none; max-width:none}
     </div>
   </section>
 
-  <section class="figure" aria-label="Odds by crime">
+  <section class="figure" aria-label="Risk by crime">
     <table class="vc-table">
       <colgroup><col class="w-crime"><col class="w-odds"><col class="w-pace col-pace"></colgroup>
-      <thead><tr><th>Crime and per-ride rate</th><th class="metric" id="oddsHead">Odds in 1 year</th><th class="col-pace">At this pace</th></tr></thead>
+      <thead><tr><th>Crime and per-ride rate</th><th class="metric" id="oddsHead">Risk in 1 year</th><th class="col-pace">At this pace</th></tr></thead>
       <tbody id="rows"></tbody>
     </table>
   </section>
 
   <footer class="source">
-    <p class="key"><b>Key assumption.</b> These odds treat every ride as identical, as if crime were spread evenly across every hour, line and station in the system. That is obviously untrue, since crime clusters at particular stations, times and situations, so any one rider's real risk could be meaningfully higher or lower than what is shown here.</p>
-    <p><b>How to read this.</b> Each figure applies the systemwide rate of reported crime per million rides to the number of rides you choose, as if every ride carried average odds. These counts include incidents involving transit workers and others who were not riding. Odds use a Poisson model, so they never exceed 100% and account for the chance of more than one incident.</p>
+    <p class="key"><b>Key assumption.</b> These estimates treat every ride as identical, as if crime were spread evenly across every hour, line and station in the system. That is obviously untrue, since crime clusters at particular stations, times and situations, so any one rider's real risk could be meaningfully higher or lower than what is shown here.</p>
+    <p><b>How to read this.</b> Each figure applies the systemwide rate of reported crime per million rides to the number of rides you choose, as if every ride carried average risk. These counts include incidents involving transit workers and others who were not riding. Risk estimates use a Poisson model, so they never exceed 100% and account for the chance of more than one incident.</p>
     <p><b>Any crime.</b> This total counts every crime complaint recorded in the subway, including offenses that surface mainly through police enforcement, such as fare evasion, trespassing and weapons or drugs found during searches. Its rate reflects police activity as well as victimization, so it overstates a rider's chance of being harmed.</p>
     <p><b>Presets.</b> The average divides about 1.28 billion annual subway rides by 8.585 million residents; tourists and commuters from outside the city inflate that figure somewhat. Commuter presets assume a round trip on each office day across 50 working weeks.</p>
     <p><b>Source:</b> NYPD transit crime complaints and MTA subway ridership; rates per million rides.</p>
@@ -198,7 +198,6 @@ const CRIMES = [
   {name:"Any crime", rate:25.18499388, plain:"About 1 per 40,000 rides",
    caveat:"Includes police-driven enforcement such as fare evasion and weapons found in searches"}
 ];
-const RATE = Object.fromEntries(CRIMES.filter(c => c.name).map(c => [c.name, c.rate]));
 
 const $ = id => document.getElementById(id);
 const slider = $("rides");
@@ -210,7 +209,6 @@ function sig2(x){
   return Math.round(x * 10) / 10;
 }
 const fmt = x => sig2(x).toLocaleString("en-US");
-const yearsBetween = (rate, rides) => rides > 0 ? fmt(1e6 / (rate * rides)) : "None";
 
 function oddsText(p){
   if (p <= 0) return {odds:"None", pct:"No rides"};
@@ -230,7 +228,8 @@ function render(){
   $("ridesVal").firstChild.nodeValue = rides.toLocaleString("en-US") + " ";
   $("perWeek").textContent = rides === 0 ? "" : wk < 1 ? "about " + Math.round(rides / 12) + " a month" : "about " + (wk < 10 ? Math.round(wk * 10) / 10 : Math.round(wk)) + " a week";
   slider.style.setProperty("--fill", (rides / 5) + "%");
-  $("oddsHead").textContent = "Odds in " + years + (years === 1 ? " year" : " years");
+  const riskLbl = "Risk in " + years + (years === 1 ? " year" : " years");
+  $("oddsHead").textContent = riskLbl;
 
   document.querySelectorAll(".presets button").forEach(b => b.setAttribute("aria-pressed", +b.dataset.rides === rides ? "true" : "false"));
 
@@ -243,8 +242,7 @@ function render(){
     html += '<tr><td class="label">' + c.name
       + '<span class="rate">' + c.plain + '</span>'
       + (c.caveat ? '<span class="caveat">' + c.caveat + '</span>' : '') + '</td>'
-      + '<td class="metric">' + o.odds + '<span class="pct">' + o.pct + '</span>'
-      + '<span class="pace-inline">' + pace + '</span></td>'
+      + '<td class="metric"><span class="m-lbl">' + riskLbl + '</span>' + o.odds + '<span class="pct">' + o.pct + '</span></td>'
       + '<td class="pace col-pace">' + pace + '</td></tr>';
   }
   $("rows").innerHTML = html;
