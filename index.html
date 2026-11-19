@@ -176,12 +176,9 @@ body.embed .card{border:none; max-width:none}
   </section>
 
   <footer class="source">
-    <p class="key"><b>Key assumption.</b> These estimates treat every ride as identical, as if crime were spread evenly across every hour, line and station in the system. That is obviously untrue, since crime clusters at particular stations, times and situations, so any one rider's real risk could be meaningfully higher or lower than what is shown here.</p>
-    <p><b>How to read this.</b> Each figure applies the systemwide rate of reported crime per million rides to the number of rides you choose, as if every ride carried average risk. These counts include incidents involving transit workers and others who were not riding. Risk estimates use a Poisson model, so they never exceed 100% and account for the chance of more than one incident.</p>
-    <p><b>Any crime.</b> This total counts every crime complaint recorded in the subway, including offenses that surface mainly through police enforcement, such as fare evasion, trespassing and weapons or drugs found during searches. Its rate reflects police activity as well as victimization, so it overstates a rider's chance of being harmed.</p>
-    <p><b>At this pace.</b> The average number of years between incidents for someone riding this often. It depends only on how often you ride, so it stays the same whichever time frame you choose.</p>
-    <p><b>Presets.</b> The slider runs to 750 rides a year, about two a day. The average divides about 1.28 billion annual subway rides by 8.585 million residents; tourists and commuters from outside the city inflate that figure somewhat. Commuter presets assume a round trip on each office day across 50 working weeks.</p>
-    <p><b>Source:</b> NYPD transit crime complaints and MTA subway ridership; rates per million rides.</p>
+    <p class="key">These estimates treat every ride as identical, as if crime were spread evenly across every hour, line and station in the system. That is obviously untrue, since crime clusters at particular stations, times and situations, so any one rider's real risk could be meaningfully higher or lower than what is shown here.</p>
+    <p><b>Note:</b> Risk is estimated with a Poisson model from the systemwide rate of reported crime per million rides, which includes incidents involving transit workers and others who were not riding. The years between incidents depend only on how often someone rides, so they stay the same across time frames. The average rider figure divides roughly 1.28 billion annual rides by the city's 8.585 million residents, which tourists and commuters from outside the city push somewhat higher, and the commuter presets assume a round trip on each office day across 50 working weeks.</p>
+    <p><b>Source:</b> NYPD transit crime complaints and MTA subway ridership, January through September 2026. Rates will change as crime on the subway rises or falls.</p>
   </footer>
 </article>
 
@@ -198,7 +195,7 @@ const CRIMES = [
   {name:"Any larceny", rate:1.8404, plain:"Fewer than 2 per million rides"},
   {group:"All reported crime"},
   {name:"Any crime", rate:25.18499388, plain:"About 1 per 40,000 rides",
-   caveat:"Includes police-driven enforcement such as fare evasion and weapons found in searches"}
+   caveat:"Includes offenses recorded mainly through police enforcement, such as fare evasion, trespassing and weapons or drugs found in searches, so it overstates the chance of being a victim."}
 ];
 
 const $ = id => document.getElementById(id);
