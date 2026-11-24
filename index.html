@@ -72,7 +72,7 @@ input[type=range]:focus-visible{outline:2px solid var(--vc-orange); outline-offs
 /* table figure */
 .figure{padding:4px 24px 0}
 .vc-table{border-collapse:collapse; width:100%; table-layout:fixed}
-.vc-table .w-crime{width:44%} .vc-table .w-odds{width:28%} .vc-table .w-pace{width:28%}
+.vc-table .w-crime{width:62%} .vc-table .w-odds{width:38%}
 .vc-table th, .vc-table td{padding:.55rem .6rem; border-bottom:1px solid var(--vc-cloud); text-align:left; font-size:.82rem; line-height:1.35; vertical-align:top}
 .vc-table thead th{background:none; color:var(--vc-charcoal); font-weight:700; font-size:.6rem; letter-spacing:.12em; text-transform:uppercase; white-space:nowrap; border-bottom:1px solid var(--vc-black); padding-top:.9rem}
 .vc-table tbody tr:last-child td{border-bottom:0}
@@ -117,15 +117,14 @@ input[type=range]:focus-visible{outline:2px solid var(--vc-orange); outline-offs
   /* table becomes stacked rows: crime on top, risk and pace side by side */
   .vc-table, .vc-table tbody{display:block; width:100%}
   .vc-table colgroup, .vc-table thead{display:none}
-  .vc-table tbody tr{display:grid; grid-template-columns:1fr 1fr; column-gap:12px; padding:12px 0; border-bottom:1px solid var(--vc-cloud)}
+  .vc-table tbody tr{display:grid; grid-template-columns:minmax(0,1fr) 8.5rem; column-gap:12px; padding:12px 0; border-bottom:1px solid var(--vc-cloud)}
   .vc-table tbody tr:last-child{border-bottom:0}
   .vc-table td{display:block; padding:0; border:0; font-size:.86rem}
-  .vc-table td.label{grid-column:1 / -1; margin-bottom:8px; font-size:.95rem}
+  .vc-table td.label{font-size:.95rem}
   .vc-table tr.group{display:block; padding:16px 0 4px; border-bottom:1px solid var(--vc-black)}
   .vc-table tr.group td{padding:0}
   .vc-table .m-lbl{display:block; font-family:var(--vc-sans); font-weight:300; font-size:.7rem; color:var(--vc-charcoal); margin-bottom:2px; white-space:normal}
   .vc-table .metric{font-size:1.2rem}
-  .vc-table td.pace{padding-top:16px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 body.embed{padding:0}
@@ -169,15 +168,15 @@ body.embed .card{border:none; max-width:none}
 
   <section class="figure" aria-label="Risk by crime">
     <table class="vc-table">
-      <colgroup><col class="w-crime"><col class="w-odds"><col class="w-pace col-pace"></colgroup>
-      <thead><tr><th>Crime and per-ride rate</th><th class="metric" id="oddsHead">Risk in 1 year</th><th class="col-pace">At this pace</th></tr></thead>
+      <colgroup><col class="w-crime"><col class="w-odds"></colgroup>
+      <thead><tr><th>Crime and per-ride rate</th><th class="metric" id="oddsHead">Risk in 1 year</th></tr></thead>
       <tbody id="rows"></tbody>
     </table>
   </section>
 
   <footer class="source">
     <p class="key">These estimates treat every ride as identical, as if crime were spread evenly across every hour, line and station in the system. That is obviously untrue, since crime clusters at particular stations, times and situations, so any one rider's real risk could be meaningfully higher or lower than what is shown here.</p>
-    <p><b>Note:</b> Risk is estimated with a Poisson model from the systemwide rate of reported crime per million rides, which includes incidents involving transit workers and others who were not riding. The years between incidents depend only on how often someone rides, so they stay the same across time frames. The average rider figure divides roughly 1.28 billion annual rides by the city's 8.585 million residents, which tourists and commuters from outside the city push somewhat higher, and the commuter presets assume a round trip on each office day across 50 working weeks.</p>
+    <p><b>Note:</b> Risk is estimated with a Poisson model from the systemwide rate of reported crime per million rides, which includes incidents involving transit workers and others who were not riding. The average rider figure divides roughly 1.28 billion annual rides by the city's 8.585 million residents, which tourists and commuters from outside the city push somewhat higher, and the commuter presets assume a round trip on each office day across 50 working weeks.</p>
     <p><b>Source:</b> NYPD transit crime complaints and MTA subway ridership, January through September 2026. Rates will change as crime on the subway rises or falls.</p>
   </footer>
 </article>
@@ -234,15 +233,13 @@ function render(){
 
   let html = "";
   for (const c of CRIMES) {
-    if (c.group) { html += '<tr class="group"><td colspan="3">' + c.group + '</td></tr>'; continue; }
+    if (c.group) { html += '<tr class="group"><td colspan="2">' + c.group + '</td></tr>'; continue; }
     const p = 1 - Math.exp(-(c.rate * rides * years / 1e6));
     const o = oddsText(p);
-    const pace = paceText(rides, c.rate);
     html += '<tr><td class="label">' + c.name
       + '<span class="rate">' + c.plain + '</span>'
       + (c.caveat ? '<span class="caveat">' + c.caveat + '</span>' : '') + '</td>'
-      + '<td class="metric"><span class="m-lbl">' + riskLbl + '</span>' + o.odds + '<span class="pct">' + o.pct + '</span></td>'
-      + '<td class="pace col-pace">' + pace + '</td></tr>';
+      + '<td class="metric"><span class="m-lbl">' + riskLbl + '</span>' + o.odds + '<span class="pct">' + o.pct + '</span></td>' + '</tr>';
   }
   $("rows").innerHTML = html;
   postHeight();
