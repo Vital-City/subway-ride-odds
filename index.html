@@ -89,6 +89,17 @@ input[type=range]:focus-visible{outline:2px solid var(--vc-orange); outline-offs
 .vc-table tr.group td{font-weight:700; font-size:.6rem; letter-spacing:.12em; text-transform:uppercase; color:var(--vc-orange); padding-top:.9rem; padding-bottom:.35rem}
 .muted{color:var(--vc-charcoal)}
 
+/* share */
+.share{margin-top:14px; padding:14px 24px; border-top:1px solid var(--vc-cloud); display:flex; align-items:center; gap:14px; flex-wrap:wrap}
+.share-btns{display:flex; gap:8px; flex-wrap:wrap}
+.share-btns button{font-family:var(--vc-sans); font-weight:700; font-size:.68rem; letter-spacing:.06em; text-transform:uppercase;
+  background:var(--vc-white); color:var(--vc-black); border:1px solid var(--vc-black); padding:8px 14px; min-height:36px; cursor:pointer; transition:background .15s}
+.share-btns button:hover{background:var(--vc-chartreuse-50)}
+.share-btns button:active{background:var(--vc-chartreuse)}
+.share-btns button:focus-visible{outline:2px solid var(--vc-orange); outline-offset:1px}
+.share-status{font-size:.76rem; color:var(--vc-charcoal)}
+#linkFallback{flex-basis:100%; font-family:var(--vc-sans); font-size:.8rem; padding:6px 8px; border:1px solid var(--vc-cloud); width:100%}
+
 /* source band */
 .source{margin-top:16px; padding:12px 24px 14px; font-size:.72rem; color:var(--vc-charcoal); border-top:1px solid var(--vc-cloud); display:grid; gap:6px}
 .source p{margin:0}
@@ -113,6 +124,9 @@ input[type=range]:focus-visible{outline:2px solid var(--vc-orange); outline-offs
   .btn-group button{min-height:40px}
   .figure{padding:0 16px}
   .source{padding:12px 16px 14px}
+  .share{padding:14px 16px}
+  .share-btns{display:grid; grid-template-columns:1fr 1fr; width:100%}
+  .share-btns button{min-height:44px}
 
   /* table becomes stacked rows: crime on top, risk and pace side by side */
   .vc-table, .vc-table tbody{display:block; width:100%}
@@ -172,6 +186,16 @@ body.embed .card{border:none; max-width:none}
       <thead><tr><th>Crime and per-ride rate</th><th class="metric" id="oddsHead">Risk in 1 year</th></tr></thead>
       <tbody id="rows"></tbody>
     </table>
+  </section>
+
+  <section class="share" aria-label="Share your result">
+    <span class="toolbar-label">Share your result</span>
+    <div class="share-btns">
+      <button type="button" id="shareImg">Share image</button>
+      <button type="button" id="copyLink">Copy link</button>
+    </div>
+    <span class="share-status" id="shareStatus" aria-live="polite"></span>
+    <input type="text" id="linkFallback" readonly hidden aria-label="Link to your result">
   </section>
 
   <footer class="source">
@@ -268,6 +292,111 @@ if (isEmbed) {
   window.addEventListener("resize", postHeight);
   let n = 0; const t = setInterval(() => { postHeight(); if (++n > 20) clearInterval(t); }, 300);
 }
+
+/* ---------- sharing ---------- */
+/* Placeholder: replace with the URL of the Ghost article that embeds this tool */
+const ARTICLE_URL = "https://www.vitalcitynyc.org/ARTICLE-URL-HERE/";
+const SHARE_ROWS = ["Any major violent crime", "Robbery", "Any assault", "Any larceny", "Murder"];
+
+/* Read settings from the address, e.g. #rides=500&years=10 */
+(function readHash(){
+  const h = new URLSearchParams(location.hash.replace(/^#/, ""));
+  const r = parseInt(h.get("rides"), 10), y = parseInt(h.get("years"), 10);
+  if (r >= 0 && r <= 750) slider.value = r;
+  if ([1, 10, 30].includes(y)) {
+    years = y;
+    document.querySelectorAll(".btn-group button").forEach(x => x.setAttribute("aria-pressed", +x.dataset.years === y ? "true" : "false"));
+  }
+})();
+
+const resultUrl = () => ARTICLE_URL.split("#")[0] + "#rides=" + slider.value + "&years=" + years;
+const status = msg => { $("shareStatus").textContent = msg; clearTimeout(status.t); status.t = setTimeout(() => $("shareStatus").textContent = "", 4000); };
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+function wrap(ctx, text, maxW){
+  const words = text.split(" "), lines = []; let line = "";
+  for (const w of words) { const t = line ? line + " " + w : w; if (ctx.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t; }
+  if (line) lines.push(line); return lines;
+}
+
+async function drawCard(){
+  try { await document.fonts.ready; } catch(e) {}
+  const W = 1080, H = 1350, P = 84, sans = cssVar("--vc-sans"), serif = cssVar("--vc-serif");
+  const black = cssVar("--vc-black"), charcoal = cssVar("--vc-charcoal"), cloud = cssVar("--vc-cloud"), orange = cssVar("--vc-orange"), chartreuse = cssVar("--vc-chartreuse");
+  const c = document.createElement("canvas"); c.width = W; c.height = H;
+  const ctx = c.getContext("2d"); ctx.textBaseline = "alphabetic";
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = black; ctx.lineWidth = 4; ctx.strokeRect(2, 2, W - 4, H - 4);
+
+  let y = P + 56;
+  ctx.fillStyle = black; ctx.font = "900 62px " + sans;
+  for (const l of wrap(ctx, "What is my risk of being a crime victim on the subway?", W - 2 * P)) { ctx.fillText(l, P, y); y += 72; }
+
+  const rides = +slider.value;
+  y += 18;
+  const lead = "Riding " + rides.toLocaleString("en-US") + " times a year, my risk over " + years + (years === 1 ? " year" : " years") + ":";
+  ctx.font = "300 36px " + sans; ctx.fillStyle = black;
+  const leadLines = wrap(ctx, lead, W - 2 * P);
+  for (const l of leadLines) { ctx.fillText(l, P, y); y += 46; }
+
+  y += 10; ctx.fillStyle = orange; ctx.fillRect(P, y, W - 2 * P, 5); y += 5;
+
+  const rowH = 134;
+  SHARE_ROWS.forEach((name, i) => {
+    const rate = CRIMES.find(c => c.name === name).rate;
+    const p = 1 - Math.exp(-(rate * rides * years / 1e6));
+    const o = oddsText(p);
+    const mid = y + rowH / 2;
+    ctx.fillStyle = black; ctx.font = "700 38px " + sans; ctx.textAlign = "left";
+    ctx.fillText(name, P, mid + 13);
+    ctx.font = "300 60px " + serif; ctx.textAlign = "right";
+    ctx.fillText(o.odds, W - P, mid + 6);
+    ctx.font = "300 24px " + sans; ctx.fillStyle = charcoal;
+    ctx.fillText(o.pct, W - P, mid + 40);
+    ctx.textAlign = "left";
+    y += rowH;
+    if (i < SHARE_ROWS.length - 1) { ctx.fillStyle = cloud; ctx.fillRect(P, y, W - 2 * P, 2); }
+  });
+
+  /* footer */
+  const fy = H - P - 150;
+  ctx.fillStyle = black; ctx.fillRect(P, fy, W - 2 * P, 2);
+  ctx.font = "700 34px " + sans; ctx.fillStyle = black;
+  const cta = "Find your own risk";
+  const ctaW = ctx.measureText(cta).width;
+  ctx.fillStyle = chartreuse; ctx.fillRect(P - 8, fy + 34, ctaW + 16, 50);
+  ctx.fillStyle = black; ctx.fillText(cta, P, fy + 71);
+  ctx.font = "300 30px " + sans;
+  ctx.fillText(ARTICLE_URL.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, ""), P, fy + 124);
+  ctx.font = "300 20px " + sans; ctx.fillStyle = charcoal;
+  ctx.fillText("NYPD and MTA data, January through September 2026. Assumes average risk on every ride.", P, H - P + 8);
+  return c;
+}
+
+$("shareImg").addEventListener("click", async () => {
+  const c = await drawCard();
+  const blob = await new Promise(r => c.toBlob(r, "image/png"));
+  if (!blob) { status("Could not create the image."); return; }
+  const file = new File([blob], "my-subway-risk.png", {type:"image/png"});
+  const text = "My risk of being a crime victim on the subway. Find yours:";
+  try {
+    if (navigator.canShare && navigator.canShare({files:[file]})) {
+      await navigator.share({files:[file], text, url: resultUrl()});
+      return;
+    }
+  } catch (e) { if (e && e.name === "AbortError") return; }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "my-subway-risk.png";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  status("Image saved. If nothing downloaded, open the page on its own and try again.");
+});
+
+$("copyLink").addEventListener("click", async () => {
+  const url = resultUrl();
+  try { await navigator.clipboard.writeText(url); status("Link copied."); $("linkFallback").hidden = true; }
+  catch (e) { const f = $("linkFallback"); f.value = url; f.hidden = false; f.focus(); f.select(); status("Copy the link below."); postHeight(); }
+});
 
 render();
 </script>
